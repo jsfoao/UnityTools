@@ -32,6 +32,7 @@ public class SnapTool : EditorWindow
     public float gridSize = 10f;
 
     private SerializedObject so;
+    private SerializedProperty propSnapRealTime;
     private SerializedProperty propGridType;
     private SerializedProperty propDrawGrid;
     private SerializedProperty propGridSpacing;
@@ -50,6 +51,7 @@ public class SnapTool : EditorWindow
     private void OnEnable()
     {
         so = new SerializedObject(this);
+        propSnapRealTime = so.FindProperty("snapRealTime");
         propGridSpacing = so.FindProperty("gridSpacing");
         propGridSize = so.FindProperty("gridSize");
         propDrawGrid = so.FindProperty("drawGrid");
@@ -57,12 +59,17 @@ public class SnapTool : EditorWindow
         propAngleSpacing = so.FindProperty("angleSpacing");
         propRadiusSpacing = so.FindProperty("radiusSpacing");
 
+        // Load saved configuration
+        gridSpacing = EditorPrefs.GetFloat("SNAPPER_TOOL_gridSpacing", 1f);
+
         Selection.selectionChanged += Repaint;
         SceneView.duringSceneGui += DuringSceneGUI;
     }
 
     private void OnDisable()
     {
+        EditorPrefs.SetFloat("SNAPPER_TOOL_gridSpacing", gridSpacing);
+
         Selection.selectionChanged -= Repaint;
         SceneView.duringSceneGui -= DuringSceneGUI;
     }
@@ -71,32 +78,31 @@ public class SnapTool : EditorWindow
     {
         Handles.zTest = CompareFunction.LessEqual;
 
-        if (snapRealTime)
+        Vector3 averagedPos = Vector3.zero;
+        foreach (GameObject go in Selection.gameObjects)
         {
-            Vector3 averagedPos = Vector3.zero;
-            foreach (GameObject go in Selection.gameObjects)
+            Undo.RecordObject(go.transform, UNDO_STR_SNAP);
+            Vector3 pos = go.transform.position;
+            averagedPos += pos;
+
+            if (snapRealTime)
             {
-                Undo.RecordObject(go.transform, UNDO_STR_SNAP);
-                Vector3 pos = go.transform.position;
-                averagedPos += pos;
                 go.transform.position = GetSnappedPosition(pos);
             }
-            averagedPos /= Selection.gameObjects.Length;
+        }
+        averagedPos /= Selection.gameObjects.Length;
             
-            if (gridType == GridType.Cartesian)
-            {
-                if (gridSpacing < 0.1f)
-                    return;
+        if (gridType == GridType.Cartesian)
+        {
+            if (gridSpacing < 0.1f)
+                return;
 
-                DrawCartesianGrid(averagedPos.Round(1 / gridSpacing), new Vector2(gridSize, gridSize), gridSpacing);
-            }
+            DrawCartesianGrid(averagedPos.Round(1 / gridSpacing), new Vector2(gridSize, gridSize), gridSpacing);
+        }
 
-            if (gridType == GridType.Polar)
-            {
-                DrawPolarGrid(averagedPos, gridSize, angleSpacing, radiusSpacing);
-            }
-
-            return;
+        if (gridType == GridType.Polar)
+        {
+            DrawPolarGrid(averagedPos, gridSize, angleSpacing, radiusSpacing);
         }
     }
 
@@ -106,17 +112,31 @@ public class SnapTool : EditorWindow
         using (new GUILayout.VerticalScope(EditorStyles.helpBox))
         {
             GUILayout.Label("Grid Settings", EditorStyles.boldLabel);
-
+            EditorGUILayout.PropertyField(propSnapRealTime);
             EditorGUILayout.PropertyField(propGridType);
 
             if (gridType == GridType.Cartesian)
             {
                 EditorGUILayout.PropertyField(propGridSpacing);
             }
-            else if (gridType == GridType.Polar)
+            if (gridType == GridType.Polar)
             {
                 EditorGUILayout.PropertyField(propAngleSpacing);
                 EditorGUILayout.PropertyField(propRadiusSpacing);
+            }
+
+            if (!snapRealTime)
+            {
+                if (GUILayout.Button("Snap Position"))
+                {
+                    foreach (GameObject go in Selection.gameObjects)
+                    {
+                        Undo.RecordObject(go.transform, UNDO_STR_SNAP);
+                        Vector3 pos = go.transform.position;
+
+                        go.transform.position = GetSnappedPosition(pos);
+                    }
+                }
             }
         }
 
