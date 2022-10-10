@@ -13,7 +13,7 @@
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/24cb545f0fda44d7a6fbdc3f90b29dfb29200/f5/f704b189/GUILayout.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/4e64905d831f4883a53259ef37fb023b814200/4b/07ed2df7/Handles.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/4e64905d831f4883a53259ef37fb023b814200/f2/49f6cba5/Selection.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/Assets/ProceduralGeometry.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Scripts/ProceduralGeometry.cs" root0="FORCE_HIGHLIGHTING" />
   </component>
   <component name="MarkdownSettingsMigration">
     <option name="stateVersion" value="1" />
@@ -75,7 +75,7 @@
       <workItem from="1664781469882" duration="20823000" />
       <workItem from="1664873857796" duration="5966000" />
       <workItem from="1664954170813" duration="14115000" />
-      <workItem from="1665390896316" duration="8439000" />
+      <workItem from="1665390896316" duration="14752000" />
     </task>
     <servers />
   </component>
