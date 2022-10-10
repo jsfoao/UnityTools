@@ -1,7 +1,7 @@
-using System;
 using System.Collections.Generic;
 using UnityEngine;
 
+[ExecuteInEditMode]
 public class ProceduralGeometry : MonoBehaviour
 {
     [Range(0.01f, 1f)]
@@ -12,10 +12,70 @@ public class ProceduralGeometry : MonoBehaviour
     public int angularSegments = 3;
 
     private float RadiusOuter => radiusInner + thickness;
+    private int VertexCount => angularSegments * 2;
+
+    private Mesh mesh;
 
     private void Awake()
     {
-        Mesh mesh = new Mesh();
+        mesh = new Mesh();
+        mesh.name = "QuadRing";
+        GetComponent<MeshFilter>().sharedMesh = mesh;
+    }
+
+    private void Update()
+    {
+        GenerateQuadRing();
+    }
+
+    private void GenerateQuadRing()
+    {
+        mesh.Clear();
+
+        List<Vector2> uvs = new List<Vector2>();
+        List<Vector3> normals = new List<Vector3>();
+
+        // Vertices
+        List<Vector3> vertices = new List<Vector3>();
+        for (int i = 0; i < angularSegments; i++)
+        {
+            float t = i / (float) angularSegments;
+            float angRad = t * JMath.TAU;
+            Vector2 dir = JMath.GetUnitVectorByAngle(angRad);
+            vertices.Add(dir * RadiusOuter);
+            vertices.Add(dir * radiusInner);
+            
+            normals.Add(Vector3.forward);
+            normals.Add(Vector3.forward);
+            
+            uvs.Add(new Vector2(t, 1));
+            uvs.Add(new Vector2(t, 0));
+        }
+        
+        // Triangles
+        List<int> triangleIndices = new List<int>();
+        for (int i = 0; i < angularSegments; i++)
+        {
+            int rootIndex = i * 2;
+            int indexInnerRoot = rootIndex + 1;
+            int indexOuterNext = (rootIndex + 2) % VertexCount;
+            int indexInnerNext = (rootIndex + 3) % VertexCount;
+            
+            triangleIndices.Add(rootIndex);
+            triangleIndices.Add(indexOuterNext);
+            triangleIndices.Add(indexInnerNext);
+            
+            triangleIndices.Add(rootIndex);
+            triangleIndices.Add(indexInnerNext);
+            triangleIndices.Add(indexInnerRoot);
+        }
+        
+        mesh.SetVertices(vertices);
+        mesh.SetTriangles(triangleIndices, 0);
+        mesh.SetNormals(normals);
+        mesh.SetUVs(0, uvs);
+
+        GetComponent<MeshFilter>().sharedMesh = mesh;
     }
 
     private void GenerateQuad()

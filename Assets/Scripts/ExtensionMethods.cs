@@ -2,6 +2,8 @@
 
 public static class JMath
 {
+    public const float TAU = 6.28318530718f;
+
     public static Vector3 Round(this Vector3 v, float decimals = 1f)
     {
         v.x = Mathf.Round(v.x * decimals) / decimals;
@@ -27,7 +29,6 @@ public static class JMath
 
 public static class JGizmos
 {
-    private const float TAU = 6.28318530718f;
 
     public static void DrawWireCircle(Vector3 pos, Quaternion rot, float radius, int detail = 32)
     {
@@ -36,7 +37,7 @@ public static class JGizmos
         for (int i = 0; i < detail; i++)
         {
             float t = i / (float) detail;
-            float angRad = t * TAU;
+            float angRad = t * JMath.TAU;
 
             // point in the unit circle
             Vector2 point2D = JMath.GetUnitVectorByAngle(angRad) * radius;
