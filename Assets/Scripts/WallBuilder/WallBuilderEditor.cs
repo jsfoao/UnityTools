@@ -1,4 +1,5 @@
-﻿using Unity.VisualScripting;
+﻿using System;
+using Unity.VisualScripting;
 using UnityEditor;
 using UnityEngine;
 
@@ -24,6 +25,16 @@ public class WallBuilderEditor : Editor
         if (GUILayout.Button("Init"))
         {
             targetType.Init();
+        }
+    }
+
+    private void OnSceneGUI()
+    {
+        EditorGUI.BeginChangeCheck();
+        Vector3 targetPos = Handles.PositionHandle(targetType.graph.Vertices[0].Position, Quaternion.identity);
+        if (EditorGUI.EndChangeCheck())
+        {
+            targetType.graph.Vertices[0].Position = targetPos;
         }
     }
 }

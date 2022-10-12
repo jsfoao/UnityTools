@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
 
 public class WVertex
@@ -6,10 +7,12 @@ public class WVertex
     public WGraph Owner;
     public Vector3 Position;
     public HashSet<WEdge> Edges;
+    public Quaternion Rotation;
     
     public WVertex(WGraph owner = null)
     {
         Position = Vector3.zero;
+        Rotation = Quaternion.identity;
         Edges = new HashSet<WEdge>();
 
         owner?.Bind(this);
@@ -18,6 +21,7 @@ public class WVertex
     public WVertex(Vector3 position, WGraph owner = null)
     {
         Position = position;
+        Rotation = Quaternion.identity;
         Edges = new HashSet<WEdge>();
 
         owner?.Bind(this);
@@ -31,6 +35,6 @@ public class WVertex
 
     public void Render()
     {
-        
+        Gizmos.DrawSphere(Position, 0.3f);
     }
 }

@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
 
 public class WGraph
@@ -44,14 +45,16 @@ public class WGraph
 
     public void Render()
     {
-        foreach (WVertex vertex in Vertices)
-        {
-            Gizmos.DrawSphere(vertex.Position, 0.3f);
-        }
-
+        Gizmos.color = Color.white;
         foreach (WEdge edge in Edges)
         {
             Gizmos.DrawLine(edge.Source.Position, edge.Destination.Position);
+        }
+        
+        Gizmos.color = Color.red;
+        foreach (WVertex vertex in Vertices)
+        {
+            vertex.Render();
         }
     }
 }
