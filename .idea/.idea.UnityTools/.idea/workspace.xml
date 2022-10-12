@@ -14,6 +14,7 @@
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/86acb61e0d2b4b36bc20af11093be9a5157e00/a2/568385f4/Object.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/b32344b54aac4f388443d98691b860b11a000/ce/2b452aa3/Physics.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/3ea01e77be99618395f448b16bd7cc2bd4248bd9e5d8474964b2d97f39c5d74/System.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Editor/WallTool/WallBuilderTool.cs" root0="FORCE_HIGHLIGHTING" />
   </component>
   <component name="MarkdownSettingsMigration">
     <option name="stateVersion" value="1" />
@@ -72,7 +73,8 @@
       <option name="presentableId" value="Default" />
       <updated>1665042942062</updated>
       <workItem from="1665042945524" duration="13418000" />
-      <workItem from="1665476421313" duration="12007000" />
+      <workItem from="1665476421313" duration="12047000" />
+      <workItem from="1665575632751" duration="9128000" />
     </task>
     <servers />
   </component>
