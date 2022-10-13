@@ -1,27 +1,29 @@
+﻿using System;
+using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
 public class WallBuilderTool : EditorWindow
 {
-    public enum SelectedType
+    private SerializedObject so;
+    private WallManager targetType;
+
+    public WGraph graph;
+    public List<GameObject> spawnedObjects;
+
+    public enum SelectionType
     {
-        Vertex, Edge, Graph, Multiple, None
+        Vertex, Edge, Multiple, None
     }
-    
-    public SerializedObject so;
-    
+
     [MenuItem("Tools/WallBuilderTool")]
-    private static void ShowWindow()
+    public static void Open()
     {
-        var window = GetWindow<WallBuilderTool>();
-        window.titleContent = new GUIContent("WallBuilderTool");
-        window.Show();
+        GetWindow<WallBuilderTool>("WalllBuilderTool");
     }
 
     private void OnEnable()
     {
-        so = new SerializedObject(this);
-
         Selection.selectionChanged += Repaint;
         SceneView.duringSceneGui += DuringSceneGUI;
     }
@@ -34,91 +36,151 @@ public class WallBuilderTool : EditorWindow
 
     private void DuringSceneGUI(SceneView sceneView)
     {
-        
+        Repaint();
+        if (graph == null)
+            return;
+        graph.Render();
     }
 
     private void OnGUI()
     {
-        so.Update();
-        if (Selection.gameObjects.Length > 0)
+        SelectionType selectionType = EvaluateSelection();
+
+        switch (selectionType)
         {
-            SelectedType selectedType = GetSelectedType();
-            if (selectedType != SelectedType.None)
+            case SelectionType.Vertex:
+                OnGUI_Vertex();
+                break;
+            case SelectionType.Edge:
+                OnGUI_Edge();
+                break;
+            case SelectionType.Multiple:
+                break;
+            case SelectionType.None:
+                OnGUI_None();
+                break;
+            default:
+                break;
+        }
+
+        GUILayout.Space(10);
+        if (GUILayout.Button("New Graph"))
+        {
+            InitGraph();
+            Debug.Log("Created new graph");
+        }
+        if (GUILayout.Button("Clear Builder"))
+        {
+            ClearAll();
+            Debug.Log("Cleared spawned objects");
+        }
+        if (GUILayout.Button("Clear Scene"))
+        {
+            ClearScene();
+            Debug.Log("Cleared all objects in scene");
+        }
+    }
+
+    private void OnGUI_None()
+    {
+        using (new GUILayout.VerticalScope(EditorStyles.helpBox))
+        {
+            GUILayout.Label("Selection", EditorStyles.boldLabel);
+        }
+    }
+
+    private void OnGUI_Vertex()
+    {
+        WVertex vertex = Selection.activeGameObject.GetComponent<WVertex>();
+        using (new GUILayout.VerticalScope(EditorStyles.helpBox))
+        {
+            GUILayout.Label("Vertex", EditorStyles.boldLabel);
+            GUILayout.Label("Position: " + vertex.Position);
+            if (GUILayout.Button("Add Connected Vertex"))
             {
-                using (new GUILayout.VerticalScope(EditorStyles.helpBox))
-                {
-                    switch (selectedType)
-                    {
-                        case SelectedType.Vertex:
-                            OnGUIVertex();
-                            break;
-                        case SelectedType.Edge:
-                            OnGUIEdge();
-                            break;
-                        case SelectedType.Graph:
-                            OnGUIGraph();
-                            break;
-                        case SelectedType.Multiple:
-                            OnGUIMultiple();
-                            break;
-                    }
-                }
+                WVertex newVertex = WBuilder.CreateVertex(graph);
+                vertex.AddConnection(newVertex);
+                Debug.Log("Added connected vertex");
             }
         }
-        so.ApplyModifiedProperties();
     }
 
-    private void OnGUIVertex()
+    private void OnGUI_Edge()
     {
-        GUILayout.Label("Selection : Vertex", EditorStyles.boldLabel);
-
+        using (new GUILayout.VerticalScope(EditorStyles.helpBox))
+        {
+            GUILayout.Label("Edge", EditorStyles.boldLabel);
+        }
     }
 
-
-    private void OnGUIEdge()
+    public SelectionType EvaluateSelection()
     {
-        GUILayout.Label("Selection : Edge", EditorStyles.boldLabel);
-    }
+        if (Selection.gameObjects.Length <= 0)
+            return SelectionType.None;
 
-    private void OnGUIGraph()
-    {
-        GUILayout.Label("Selection : Graph", EditorStyles.boldLabel);
-    }
-
-    private void OnGUIMultiple()
-    {
-        GUILayout.Label("Selection : Multiple", EditorStyles.boldLabel);
-    }
-
-    private SelectedType GetSelectedType()
-    {
         bool flagVertex = false;
         bool flagEdge = false;
-        bool flagGraph = false;
-        
+
         foreach (GameObject go in Selection.gameObjects)
         {
-            flagVertex = go.GetComponent<WallVertex>();
-            flagEdge = go.GetComponent<WallEdge>();
-            flagGraph = go.GetComponent<WallManager>();
+            if (go.GetComponent<WVertex>() != null)
+            {
+                flagVertex = true;
+            }
+            else if (go.GetComponent<WEdge>() != null)
+            {
+                flagEdge = true;
+            }
         }
 
-        if (flagVertex && !flagEdge && !flagGraph)
+        if (flagVertex && flagEdge)
         {
-            return SelectedType.Vertex;
+            return SelectionType.Multiple;
         }
-        if (flagEdge && !flagVertex && !flagGraph)
+        else if (flagVertex && !flagEdge)
         {
-            return SelectedType.Edge;
+            return SelectionType.Vertex;
         }
-        if (flagGraph && !flagVertex && !flagEdge)
+        else if (flagEdge && !flagVertex)
         {
-            return SelectedType.Graph;
+            return SelectionType.Edge;
         }
-        if (flagGraph && flagVertex && flagEdge)
+        return SelectionType.None;
+    }
+
+    // Wallbuilder extensions
+
+    public void InitGraph()
+    {
+        graph = new WGraph();
+
+        spawnedObjects = new List<GameObject>();
+
+        GameObject root = new GameObject();
+        root.hideFlags = HideFlags.HideInHierarchy;
+        graph.Root = root;
+
+        WVertex vertex = WBuilder.CreateVertex(graph);
+
+        spawnedObjects.Add(root);
+        spawnedObjects.Add(vertex.gameObject);
+    }
+
+    public void ClearAll()
+    {
+        graph = null;
+        foreach (GameObject go in spawnedObjects)
         {
-            return SelectedType.Multiple;
+            DestroyImmediate(go);
         }
-        return SelectedType.None;
+    }
+
+    public void ClearScene()
+    {
+        graph = null;
+        foreach (GameObject go in UnityEngine.Object.FindObjectsOfType<GameObject>())
+        {
+            DestroyImmediate(go);
+        }
     }
 }

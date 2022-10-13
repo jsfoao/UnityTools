@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class WGraph
 {
+    public GameObject Root;
     public List<WVertex> Vertices;
     public HashSet<WEdge> Edges;
 
@@ -48,7 +49,7 @@ public class WGraph
         Gizmos.color = Color.white;
         foreach (WEdge edge in Edges)
         {
-            Gizmos.DrawLine(edge.Source.Position, edge.Destination.Position);
+            edge.Render();
         }
         
         Gizmos.color = Color.red;

@@ -2,14 +2,15 @@
 using UnityEditor;
 using UnityEngine;
 
-public class WVertex
+[ExecuteInEditMode]
+public class WVertex : MonoBehaviour
 {
     public WGraph Owner;
     public Vector3 Position;
     public HashSet<WEdge> Edges;
     public Quaternion Rotation;
-    
-    public WVertex(WGraph owner = null)
+
+    public void Init(WGraph owner = null)
     {
         Position = Vector3.zero;
         Rotation = Quaternion.identity;
@@ -17,24 +18,21 @@ public class WVertex
 
         owner?.Bind(this);
     }
-    
-    public WVertex(Vector3 position, WGraph owner = null)
-    {
-        Position = position;
-        Rotation = Quaternion.identity;
-        Edges = new HashSet<WEdge>();
 
-        owner?.Bind(this);
+    private void Update()
+    {
+        Position = transform.position;
     }
 
     public void AddConnection(WVertex vertex)
     {
-        WEdge edge = new WEdge(this, vertex);
+        WEdge edge = WBuilder.CreateEdge(Owner, this, vertex);
+
         Owner.Edges.Add(edge);
     }
 
     public void Render()
     {
-        Gizmos.DrawSphere(Position, 0.3f);
+        //Handles.SphereHandleCap(0, Position, Quaternion.identity, 1f, EventType.Repaint);
     }
 }
