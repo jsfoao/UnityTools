@@ -39,11 +39,6 @@ public class WGraph
         }
     }
 
-    public void Add(WVertex vertex)
-    {
-        Bind(vertex);
-    }
-
     public void Render()
     {
         Gizmos.color = Color.white;

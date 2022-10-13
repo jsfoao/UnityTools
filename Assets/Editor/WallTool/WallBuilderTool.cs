@@ -102,6 +102,16 @@ public class WallBuilderTool : EditorWindow
                 vertex.AddConnection(newVertex);
                 Debug.Log("Added connected vertex");
             }
+            EditorGUI.BeginDisabledGroup(Selection.gameObjects.Length != 2);
+            if (GUILayout.Button("Join vertices"))
+            {
+                GUI.enabled = true;
+                WVertex v1 = Selection.gameObjects[0].GetComponent<WVertex>();
+                WVertex v2 = Selection.gameObjects[1].GetComponent<WVertex>();
+                v1.AddConnection(v2);
+                Debug.Log("Joined Vertices");
+            }
+            EditorGUI.EndDisabledGroup();
         }
     }
 
