@@ -1,7 +1,8 @@
+using System;
 using System.Collections.Generic;
-using UnityEditor;
 using UnityEngine;
 
+[Serializable]
 public class WGraph
 {
     public GameObject Root;
@@ -37,6 +38,11 @@ public class WGraph
                 Edges.Remove(edge);
             }
         }
+    }
+
+    public void Connect(WVertex v1, WVertex v2)
+    {
+        v1.AddEdge(v2);
     }
 
     public void Render()

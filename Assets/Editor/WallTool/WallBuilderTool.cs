@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
+
 public class WallBuilderTool : EditorWindow
 {
     private SerializedObject so;
@@ -55,6 +56,7 @@ public class WallBuilderTool : EditorWindow
                 OnGUI_Edge();
                 break;
             case SelectionType.Multiple:
+                OnGUI_Multiple();
                 break;
             case SelectionType.None:
                 OnGUI_None();
@@ -88,6 +90,14 @@ public class WallBuilderTool : EditorWindow
             GUILayout.Label("Selection", EditorStyles.boldLabel);
         }
     }
+    
+    private void OnGUI_Multiple()
+    {
+        using (new GUILayout.VerticalScope(EditorStyles.helpBox))
+        {
+            GUILayout.Label("Selection", EditorStyles.boldLabel);
+        }
+    }
 
     private void OnGUI_Vertex()
     {
@@ -96,10 +106,12 @@ public class WallBuilderTool : EditorWindow
         {
             GUILayout.Label("Vertex", EditorStyles.boldLabel);
             GUILayout.Label("Position: " + vertex.Position);
-            if (GUILayout.Button("Add Connected Vertex"))
+            GUILayout.Label("Owner: " + vertex.Owner);
+            GUILayout.Label("Connections: " + vertex.Edges.Count);
+            if (GUILayout.Button("Add Connected Vertex (E)"))
             {
-                WVertex newVertex = WBuilder.CreateVertex(graph);
-                vertex.AddConnection(newVertex);
+                WVertex newVertex = WBuilder.InstantiateVertex(graph);
+                vertex.AddEdge(newVertex);
                 Debug.Log("Added connected vertex");
             }
             EditorGUI.BeginDisabledGroup(Selection.gameObjects.Length != 2);
@@ -108,7 +120,7 @@ public class WallBuilderTool : EditorWindow
                 GUI.enabled = true;
                 WVertex v1 = Selection.gameObjects[0].GetComponent<WVertex>();
                 WVertex v2 = Selection.gameObjects[1].GetComponent<WVertex>();
-                v1.AddConnection(v2);
+                v1.AddEdge(v2);
                 Debug.Log("Joined Vertices");
             }
             EditorGUI.EndDisabledGroup();
@@ -117,11 +129,15 @@ public class WallBuilderTool : EditorWindow
 
     private void OnGUI_Edge()
     {
+        WEdge edge = Selection.activeGameObject.GetComponent<WEdge>();
         using (new GUILayout.VerticalScope(EditorStyles.helpBox))
         {
             GUILayout.Label("Edge", EditorStyles.boldLabel);
+            GUILayout.Label("Source: " + edge.Source.name);
+            GUILayout.Label("Destination: " + edge.Destination.name);
         }
     }
+    
 
     public SelectionType EvaluateSelection()
     {
@@ -170,7 +186,7 @@ public class WallBuilderTool : EditorWindow
         root.hideFlags = HideFlags.HideInHierarchy;
         graph.Root = root;
 
-        WVertex vertex = WBuilder.CreateVertex(graph);
+        WVertex vertex = WBuilder.InstantiateVertex(graph);
 
         spawnedObjects.Add(root);
         spawnedObjects.Add(vertex.gameObject);
