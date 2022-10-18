@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
@@ -6,29 +7,34 @@ using UnityEngine;
 public class WVertex : MonoBehaviour
 {
     [SerializeField]
-    public WGraph Owner;
-    
-    [SerializeField]
     public Vector3 Position;
     public HashSet<WEdge> Edges;
     public Quaternion Rotation;
 
-    public void Init(WGraph owner = null)
+    public void Init(Vector3 position, List<WVertex> connections = null)
     {
+        Position = position;
         Edges = new HashSet<WEdge>();
-        owner?.Bind(this);
+        WGraph.Instance.Vertices.Add(this);
+
+        if (connections == null)
+            return;
+
+        foreach (WVertex vertexConnection in connections)
+        {
+            AddEdge(vertexConnection);
+        }
     }
 
     private void OnEnable()
     {
-        Init();
+        Init(transform.position);
     }
 
     private void OnDisable()
     {
-        
         RemoveAllEdges();
-        Owner.Vertices.Remove(this);
+        WGraph.Instance.Vertices.Remove(this);
     }
 
     private void Update()
@@ -38,9 +44,9 @@ public class WVertex : MonoBehaviour
 
     public void AddEdge(WVertex vertex)
     {
-        WEdge edge = WBuilder.InstantiateEdge(Owner, this, vertex);
+        WEdge edge = WBuilder.InstantiateEdge(this, vertex);
 
-        Owner.Edges.Add(edge);
+        WGraph.Instance.Edges.Add(edge);
         vertex.Edges.Add(edge);
     }
 
@@ -64,7 +70,7 @@ public class WVertex : MonoBehaviour
         foreach (var edge in toDestroy)
         {
             edge.ClearAndDestroy();
-            Owner.Edges.Remove(edge);
+            WGraph.Instance.Edges.Remove(edge);
         }
     }
 
@@ -83,6 +89,5 @@ public class WVertex : MonoBehaviour
 
     public void Render()
     {
-        Handles.SphereHandleCap(0, Position, Quaternion.identity, 1f, EventType.Repaint);
     }
 }

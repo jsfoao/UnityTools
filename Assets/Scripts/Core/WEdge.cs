@@ -4,29 +4,46 @@ using UnityEngine;
 [ExecuteInEditMode]
 public class WEdge : MonoBehaviour
 {
-    [SerializeField]
-    public WGraph Owner;
-    
     public WVertex Source;
     public WVertex Destination;
 
-    public void Init(WVertex source, WVertex destination)
+    private delegate void Initialize();
+
+    private Initialize initialize;
+
+    public bool isInitialized;
+
+    public void Init(WVertex source, WVertex destination, WGraph owner = null)
     {
         Source = source;
         Destination = destination;
+
+        Source.Edges.Add(this);
+        Destination.Edges.Add(this);
+
+        initialize += OnInitialize;
+        initialize.Invoke();
+    }
+
+    private void OnInitialize()
+    {
+        isInitialized = true;
+        Debug.Log("Initialized Edge");
     }
 
     private void OnEnable()
     {
-        Owner.Edges.Add(this);
+        isInitialized = false;
+        Debug.Log("Enabled Edge");
     }
 
     private void OnDisable()
     {
+        WGraph.Instance.Edges.Remove(this);
         Source.Edges.Remove(this);
         Destination.Edges.Remove(this);
     }
-    
+
     public void ClearAndDestroy()
     {
         Source.Edges.Remove(this);
@@ -40,10 +57,10 @@ public class WEdge : MonoBehaviour
         float dist = Mathf.Abs((Source.Position - Destination.Position).magnitude);
         transform.rotation = Quaternion.LookRotation(Source.Position - Destination.Position);
         transform.position = (Source.Position + Destination.Position) / 2;
-        
+
         // TODO: Use procedural mesh generation instead
         transform.localScale = new Vector3(0.2f, 2f, dist);
-        
+
         Handles.DrawAAPolyLine(Source.Position, Destination.Position);
     }
 }

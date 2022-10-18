@@ -13,6 +13,7 @@
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/24cb545f0fda44d7a6fbdc3f90b29dfb29200/f5/f704b189/GUILayout.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/4e64905d831f4883a53259ef37fb023b814200/4b/07ed2df7/Handles.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/4e64905d831f4883a53259ef37fb023b814200/f2/49f6cba5/Selection.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/86acb61e0d2b4b36bc20af11093be9a5157e00/80/6527aea4/GameObject.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Assets/Scripts/ProceduralGeometry.cs" root0="FORCE_HIGHLIGHTING" />
   </component>
   <component name="MarkdownSettingsMigration">
@@ -80,6 +81,7 @@
       <workItem from="1665994697451" duration="584000" />
       <workItem from="1665995561502" duration="148000" />
       <workItem from="1665995873965" duration="8711000" />
+      <workItem from="1666093418355" duration="5699000" />
     </task>
     <servers />
   </component>

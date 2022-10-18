@@ -5,39 +5,31 @@ using UnityEngine;
 [Serializable]
 public class WGraph
 {
+    public static WGraph Instance;
+    
     public GameObject Root;
     public List<WVertex> Vertices;
     public HashSet<WEdge> Edges;
 
+    public List<GameObject> SpawnedObjects;
+    
     public WGraph()
     {
+        Instance = this;
+
         Vertices = new List<WVertex>();
         Edges = new HashSet<WEdge>();
+        SpawnedObjects = new List<GameObject>();
     }
 
-    public void Bind(WVertex vertex)
+    public void AddObject(GameObject go)
     {
-        vertex.Owner = this;
-        Vertices.Add(vertex);
-
-        foreach (WEdge edge in vertex.Edges)
-        {
-            Edges.Add(edge);
-        }
+        SpawnedObjects.Add(go);
     }
 
-    public void Unbind(WVertex vertex)
+    public void RemoveObject(GameObject go)
     {
-        vertex.Owner = null;
-        Vertices.Remove(vertex);
-
-        foreach (WEdge edge in vertex.Edges)
-        {
-            if (Edges.Contains(edge))
-            {
-                Edges.Remove(edge);
-            }
-        }
+        SpawnedObjects.Remove(go);
     }
 
     public void Connect(WVertex v1, WVertex v2)

@@ -1,41 +1,42 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.UIElements;
 
 public class WBuilder
 {
     /*
      * Spawns Edge
      */
-    public static WEdge InstantiateEdge(WGraph owner, WVertex Source, WVertex Destination)
+    public static WEdge InstantiateEdge(WVertex Source, WVertex Destination)
     {
+        // Instantiating GameObject
         GameObject go = GameObject.CreatePrimitive(PrimitiveType.Cube);
         go.hideFlags = HideFlags.HideInInspector;
-        go.transform.parent = owner.Root.transform;
+        go.transform.parent = WGraph.Instance.Root.transform;
         go.transform.position = Source.Position;
 
+        // Creating and initializing Edge
         WEdge edge = go.AddComponent<WEdge>();
         edge.Init(Source, Destination);
         
-        Source.Edges.Add(edge);
-        Destination.Edges.Add(edge);
-
         return edge;
     }
 
     /*
      * Spawns Vertex on position
      */
-    public static WVertex InstantiateVertex(WGraph owner, Vector3 position)
+    public static WVertex InstantiateVertex(Vector3 position, List<WVertex> connections = null)
     {
-        // Instantiating and initializing Vertex GameObject
+        // Instantiating GameObject
         GameObject go = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
         go.hideFlags = HideFlags.HideInInspector;
-        go.transform.parent = owner.Root.transform;
-        go.transform.position = Vector3.zero;
+        go.transform.parent = WGraph.Instance.Root.transform;
+        go.transform.position = position;
         go.transform.localScale = new Vector3(0.5f, 1f, 0.5f);
-        WVertex vertex = go.AddComponent<WVertex>();
 
-        vertex.Position = position;
-        owner.Bind(vertex);
+        // Creating and initializing Vertex
+        WVertex vertex = go.AddComponent<WVertex>(); 
+        vertex.Init(position, connections);
         
         return vertex;
     }
@@ -45,6 +46,6 @@ public class WBuilder
      */
     public static WVertex InstantiateVertex(WGraph owner)
     {
-        return InstantiateVertex(owner, Vector3.zero);
+        return InstantiateVertex(Vector3.zero);
     }
 }

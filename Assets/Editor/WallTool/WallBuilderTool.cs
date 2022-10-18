@@ -40,9 +40,32 @@ public class WallBuilderTool : EditorWindow
         Repaint();
         if (graph == null)
             return;
+
+        bool holdingCtrl = (Event.current.modifiers & EventModifiers.Control) != 0;
+        if (Event.current.keyCode == KeyCode.E 
+            && Event.current.type == EventType.KeyDown 
+            && EvaluateSelection() == SelectionType.Vertex)
+        {
+            WVertex vertex = Selection.activeGameObject.GetComponent<WVertex>();
+            WVertex newVertex = WBuilder.InstantiateVertex(vertex.Position);
+            vertex.AddEdge(newVertex);
+            Selection.activeGameObject = newVertex.gameObject;
+            Debug.Log("Added connected vertex");
+            Event.current.Use();
+        }
+
+        if (Event.current.keyCode == KeyCode.J 
+            && Event.current.type == EventType.KeyDown &&
+            holdingCtrl)
+        {
+            WVertex v1 = Selection.gameObjects[0].GetComponent<WVertex>();
+            WVertex v2 = Selection.gameObjects[1].GetComponent<WVertex>();
+            v1.AddEdge(v2);
+            Debug.Log("Joined Vertices");
+        }
         graph.Render();
     }
-
+    
     private void OnGUI()
     {
         SelectionType selectionType = EvaluateSelection();
@@ -106,12 +129,12 @@ public class WallBuilderTool : EditorWindow
         {
             GUILayout.Label("Vertex", EditorStyles.boldLabel);
             GUILayout.Label("Position: " + vertex.Position);
-            GUILayout.Label("Owner: " + vertex.Owner);
             GUILayout.Label("Connections: " + vertex.Edges.Count);
             if (GUILayout.Button("Add Connected Vertex (E)"))
             {
-                WVertex newVertex = WBuilder.InstantiateVertex(graph);
+                WVertex newVertex = WBuilder.InstantiateVertex(vertex.Position);
                 vertex.AddEdge(newVertex);
+                Selection.activeGameObject = newVertex.gameObject;
                 Debug.Log("Added connected vertex");
             }
             EditorGUI.BeginDisabledGroup(Selection.gameObjects.Length != 2);
@@ -163,33 +186,32 @@ public class WallBuilderTool : EditorWindow
         {
             return SelectionType.Multiple;
         }
-        else if (flagVertex && !flagEdge)
+        if (flagVertex && !flagEdge)
         {
             return SelectionType.Vertex;
         }
-        else if (flagEdge && !flagVertex)
+        if (flagEdge && !flagVertex)
         {
             return SelectionType.Edge;
         }
         return SelectionType.None;
     }
 
-    // Wallbuilder extensions
-
     public void InitGraph()
     {
         graph = new WGraph();
-
-        spawnedObjects = new List<GameObject>();
-
-        GameObject root = new GameObject();
-        root.hideFlags = HideFlags.HideInHierarchy;
+        
+        GameObject root = new GameObject
+        {
+            hideFlags = HideFlags.HideInHierarchy
+        };
+        
         graph.Root = root;
 
         WVertex vertex = WBuilder.InstantiateVertex(graph);
 
-        spawnedObjects.Add(root);
-        spawnedObjects.Add(vertex.gameObject);
+        graph.AddObject(root);
+        graph.AddObject(vertex.gameObject);
     }
 
     public void ClearAll()
@@ -204,7 +226,7 @@ public class WallBuilderTool : EditorWindow
     public void ClearScene()
     {
         graph = null;
-        foreach (GameObject go in UnityEngine.Object.FindObjectsOfType<GameObject>())
+        foreach (GameObject go in FindObjectsOfType<GameObject>())
         {
             DestroyImmediate(go);
         }
